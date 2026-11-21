@@ -1,6 +1,9 @@
 # Teaser maker: plan
 
-Status: **waiting for approval.** Nothing is implemented yet.
+Status: **implemented on branch `feat/teaser-maker`.** Validation 1-7 pass there.
+
+The implementation differs from the plan below in a few places; see
+"Deviations from this plan" at the end of the file.
 
 ## Blockers to clear before implementing
 
@@ -61,3 +64,38 @@ Status: **waiting for approval.** Nothing is implemented yet.
 5. Repeat step 4 and check for "skipped"
 6. `npx remotion render Teaser out/_check --frames=0,100,200 --image-format=png` (uses `in/` as the public dir)
 7. `npx remotion studio --no-open`: check that the Teaser composition is listed (`npx remotion compositions`) and that the Studio server starts
+
+
+## Deviations from this plan (branch `feat/teaser-maker`)
+
+The blockers were cleared like this:
+
+- **B1 sample photo.** No real dish photo was available, so
+  `tests/fixtures/sample-dish.jpg` is a generated placeholder with a banner that
+  says so. **Replace it with a real photo before using any output.**
+- **B2 music.** `tests/fixtures/tone.mp3` is a generated 8s tone, used only to
+  prove the audio path works. Row 2 of the fixture CSV points at it, so rows 1-2
+  are both valid as the spec expects.
+- **B3 blocked browser download.** Kept Remotion's own browser as the default. A
+  machine that cannot reach `remotion.media` can set `TEASER_CHROME_PATH` to a
+  local Chrome; nothing changes when it is unset.
+- **B4 extra packages.** `@remotion/media`, `@remotion/layout-utils` and
+  `@types/node` are all in, as the skills recommend.
+
+Other changes:
+
+- **Fonts are local, not `@remotion/google-fonts`.** `fonts.googleapis.com` is
+  unreachable here, and a font fetch at render time would break the "no network
+  at render time" rule anyway. Inter 600/800 ship as woff2 in `public/fonts/`
+  (SIL OFL) and load through `@remotion/fonts`.
+- **`public/` is the public dir, not `in/`.** The fonts have to be served, so the
+  staging folder is `public/_staged` (gitignored) and `remotion.config.ts` is
+  untouched. Studio's default props point at `public/sample-dish.jpg`.
+- **`image-size` instead of a hand-written header parser.** Fewer lines to get
+  wrong, and it covers jpg/png/webp.
+- **Dish-name fitting uses `fitTextOnNLines()`** from `@remotion/layout-utils`
+  (2 lines, 84px down to 56px), rather than a manual step-down loop.
+- **`licenseKey: "free-license"` with `isProduction: false`.** Remotion's usage
+  event then fails harmlessly offline and logs one line. If you would rather have
+  no attempt at all, pass `licenseKey: null` as the plan suggested.
+- **`src/Composition.tsx`** (the empty scaffold placeholder) is left in place.

@@ -1,0 +1,5 @@
+restaurant,dish,price,photo,audio
+Fatt Pundit,Crackling Spinach,£9.50,tests/fixtures/sample-dish.jpg,
+Fatt Pundit,Momo Platter,,tests/fixtures/sample-dish.jpg,tests/fixtures/tone.mp3
+Test Bad Row,,£5.00,tests/fixtures/sample-dish.jpg,
+Missing Photo Cafe,Flat White,£3.80,in/does-not-exist.jpg,
