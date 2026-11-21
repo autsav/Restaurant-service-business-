@@ -45,7 +45,7 @@ Status: **approved, in progress.**
   - With `--dry-run`, it prints one line per row (`row`, `output`, `ok` or the error) and touches nothing.
   - Without it, rows are processed one at a time. A row is skipped if its output exists (unless `--force`), and each row's failure is caught.
   - It writes `out/manifest.json` and exits with 1 if any row failed.
-- [ ] 7. `test: sample CSV fixture`. `tests/fixtures/leads.csv`, as specified but with `in/chilli-paneer.webp` (B1).
+- [x] 7. `test: sample CSV fixture`. `tests/fixtures/leads.csv`, as specified but with `in/chilli-paneer.webp` (B1).
 - [ ] 8. Run VALIDATION 1–7 and paste the output.
 - [ ] 9. `docs: teaser maker usage`. Append a README section with both commands, the CSV columns, the error codes and the required note.
 

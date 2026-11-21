@@ -1,0 +1,5 @@
+restaurant,dish,price,photo,audio
+Fatt Pundit,Crackling Spinach,£9.50,in/chilli-paneer.webp,
+Fatt Pundit,Momo Platter,,in/chilli-paneer.webp,assets/audio/bed.mp3
+Test Bad Row,,£5.00,in/chilli-paneer.webp,
+Missing Photo Cafe,Flat White,£3.80,in/does-not-exist.jpg,
