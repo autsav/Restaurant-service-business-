@@ -1,4 +1,6 @@
-import { loadFont } from "@remotion/google-fonts/Inter";
+import inter600 from "@fontsource/inter/files/inter-latin-600-normal.woff2";
+import inter800 from "@fontsource/inter/files/inter-latin-800-normal.woff2";
+import { loadFont } from "@remotion/fonts";
 import { fitTextOnNLines } from "@remotion/layout-utils";
 import { Audio } from "@remotion/media";
 import React, { useEffect, useState } from "react";
@@ -14,10 +16,13 @@ import {
 } from "remotion";
 import type { TeaserProps } from "./schema";
 
-const { fontFamily, waitUntilDone } = loadFont("normal", {
-  weights: ["600", "800"],
-  subsets: ["latin"],
-});
+// Inter is bundled from local files (not Google Fonts), so a render makes
+// no network calls at all.
+const fontFamily = "Inter";
+const fontsLoaded = Promise.all([
+  loadFont({ family: fontFamily, url: inter600, weight: "600" }),
+  loadFont({ family: fontFamily, url: inter800, weight: "800" }),
+]);
 
 // Safe margins that keep text clear of the Instagram UI.
 const SAFE_X = 80;
@@ -152,7 +157,7 @@ const useDishFontSize = (dish: string): number | null => {
   const [fontReady, setFontReady] = useState(false);
 
   useEffect(() => {
-    waitUntilDone()
+    fontsLoaded
       .then(() => {
         setFontReady(true);
         continueRender(handle);
