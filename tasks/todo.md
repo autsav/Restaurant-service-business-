@@ -1,6 +1,6 @@
 # Teaser maker: plan
 
-Status: **approved, in progress.**
+Status: **done.** All items ticked; validation passed on 2026-11-21.
 
 ## Blockers (resolved 2026-11-21)
 
@@ -47,8 +47,8 @@ Status: **approved, in progress.**
   - Without it, rows are processed one at a time. A row is skipped if its output exists (unless `--force`), and each row's failure is caught.
   - It writes `out/manifest.json` and exits with 1 if any row failed.
 - [x] 7. `test: sample CSV fixture`. `tests/fixtures/leads.csv`, as specified but with `in/chilli-paneer.webp` (B1).
-- [ ] 8. Run VALIDATION 1–7 and paste the output.
-- [ ] 9. `docs: teaser maker usage`. Append a README section with both commands, the CSV columns, the error codes and the required note.
+- [x] 8. Run VALIDATION 1–7 and paste the output.
+- [x] 9. `docs: teaser maker usage`. Append a README section with both commands, the CSV columns, the error codes and the required note.
 
 ## Validation (to run at step 8)
 
@@ -59,3 +59,15 @@ Status: **approved, in progress.**
 5. Repeat step 4 and check for "skipped"
 6. `npx remotion render Teaser out/_check --frames=0,100,200 --image-format=png` (uses `in/` as the public dir)
 7. `npx remotion studio --no-open`: check that the Teaser composition is listed (`npx remotion compositions`) and that the Studio server starts
+
+## Validation results (2026-11-21, in the cloud container, `REMOTION_BROWSER_EXECUTABLE=/opt/pw-browsers/chromium_headless_shell`)
+
+1. `npx tsc --noEmit`: 0 errors.
+2. Dry run: rows 1–2 ok, row 3 `INVALID_ROW` ("Dish name is required."), row 4 `PHOTO_NOT_FOUND`; exit 1; `out/` not created on the first run and unchanged on the re-run.
+3. Single render: `{"ok":true,"output":"out/fatt-pundit/crackling-spinach.mp4",…}`, exit 0. ffprobe: h264 High, 1080×1920, yuv420p (tv range), 30/1, 210 frames, 7.000 s.
+4. Batch: exit 1. Row 1 skipped (made in step 3), row 2 rendered (h264 + aac, 7.02 s), rows 3–4 failed (`INVALID_ROW`, `PHOTO_NOT_FOUND`).
+5. Batch again: rows 1–2 `skipped`, rows 3–4 `failed`; exit 1.
+6. `npx remotion render Teaser out/_check --frames=0,100,200 --image-format=png`: three 1080×1920 PNGs, checked by eye.
+7. Studio: lists `Teaser` (1080×1920, 30 fps, 7 s) with the default props; Inter 600/800 loaded; no page errors.
+
+Extra checks: the music sits about 4 dB below the source (volume 0.6) and is near-silent in the last 0.15 s (fade-out). A 60-character dish name shrinks to 56px. Every error code and exit code of the single CLI was tested by hand.
