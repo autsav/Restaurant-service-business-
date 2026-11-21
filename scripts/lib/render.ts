@@ -170,6 +170,9 @@ const renderOne = async (
       inputProps,
       codec: "h264",
       pixelFormat: "yuv420p",
+      // Standard limited-range BT.709. Without it the JPEG frames give a
+      // full-range "yuvj420p" stream. Encoding metadata only, not a grade.
+      colorSpace: "bt709",
       imageFormat: "jpeg",
       outputLocation: partial,
       overwrite: true,
