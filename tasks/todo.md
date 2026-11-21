@@ -34,7 +34,7 @@ Status: **approved, in progress.**
 
 - [x] 1. `chore: add teaser deps and scripts`. Run `npx remotion add zod @remotion/google-fonts @remotion/bundler @remotion/renderer` + `@remotion/media @remotion/layout-utils`, plus `npm i -D tsx @types/node@22`, `npm i csv-parse`. Check that every `@remotion/*` is at 4.0.545. Add the `teaser` and `batch` npm scripts. Add `in/` and `assets/audio/` to `.gitignore` (`out` is already there). Add the `setPublicDir` line. Create `tasks/lessons.md`.
 - [x] 2. `feat(teaser): props schema`. `src/schema.ts` holds the zod `teaserSchema` (composition props: `restaurant` 1-40, `dish` 1-60, `price` ≤ 12 with "" = none, `photo` file name, `audio` with "" = silent) and `leadSchema` (CSV row / CLI flags, same rules, paths on disk).
-- [ ] 3. `feat(teaser): Teaser composition`. `src/Teaser.tsx` has the background, photo and text layers plus audio, exactly per the VIDEO SPEC, all driven by `useCurrentFrame()` + `interpolate`. Register it as `id="Teaser"` (1080×1920, 30fps, 210 frames) in `Root.tsx` with inline `defaultProps` and `schema`.
+- [x] 3. `feat(teaser): Teaser composition`. `src/Teaser.tsx` has the background, photo and text layers plus audio, exactly per the VIDEO SPEC, all driven by `useCurrentFrame()` + `interpolate`. Register it as `id="Teaser"` (1080×1920, 30fps, 210 frames) in `Root.tsx` with inline `defaultProps` and `schema`.
 - [ ] 4. `feat(teaser): CLI libs`. Four files in `scripts/lib/`:
   - `slug.ts`
   - `errors.ts`: the `TeaserError` class, the code union, and a single `printError` / `printOk` JSON-line writer.
