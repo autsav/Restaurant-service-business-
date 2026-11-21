@@ -11,3 +11,7 @@ Config.setRspack(true);
 Config.setVideoImageFormat("jpeg");
 Config.setOverwriteOutput(true);
 Config.setDefaultPremountInSeconds(2);
+
+// Studio and `npx remotion still/render` serve dish photos from in/.
+// The teaser CLIs pass their own publicDir to bundle().
+Config.setPublicDir("./in");

@@ -1,19 +1,13 @@
 # Teaser maker: plan
 
-Status: **waiting for approval.** Nothing is implemented yet.
+Status: **approved, in progress.**
 
-## Blockers to clear before implementing
+## Blockers (resolved 2026-11-21)
 
-- [ ] **B1. Sample photo missing.** `in/chilli-paneer.jpg` does not exist, and the spec says to stop and ask. It must be a real photo of the dish with the shortest side ≥ 720px.
-- [ ] **B2. Music missing.** `assets/audio/bed.mp3` does not exist. If it is still missing, row 2 fails with `AUDIO_NOT_FOUND`. That changes VALIDATION 2 ("rows 1-2 ok") and VALIDATION 4/5 (only one good row).
-- [ ] **B3. The network blocks rendering.** On Linux x64 with glibc ≥ 2.35, `@remotion/renderer` 4.0.545 downloads Chrome Headless Shell from `remotion.media`, and this cloud environment's proxy refuses that host. `www.remotion.dev` is refused too, so the dataset-render docs page (workflow rule 3) cannot be read here. The fix is a personal cloud environment that allows `remotion.media` and `www.remotion.dev`. The Remotion render skill says not to point at another browser (`browserExecutable`) unless you ask for it.
-  - Option A (recommended): allow `remotion.media` and `www.remotion.dev` in a personal cloud environment. Remotion then downloads its own browser, and I can read the dataset-render page.
-  - Option B: this container already has Chrome Headless Shell 153 at `/opt/pw-browsers/chromium_headless_shell`. With your explicit go-ahead, the render helper would read it from an optional `REMOTION_BROWSER_EXECUTABLE` env var and only pass `browserExecutable` when that is set, so nothing changes on your own machine. Without option A I still can't read the docs page, so I'd follow the dataset-render pattern as the render skill describes it (bundle once, then `selectComposition` + `renderMedia` per row).
-  - Option C: build and run tsc and the dry run here; you run the renders (validation 3–6) on your own machine.
-- [ ] **B4. Packages outside the "add only" list.** The skills recommend three more packages. Each needs a yes or no:
-  - `@remotion/media`: the skill says to use its `<Audio>`. The fallback is core `Html5Audio`.
-  - `@remotion/layout-utils`: the skill says to use `fillTextBox()` / `measureText()` to shrink the dish name to fit. The fallback is hand-written canvas measuring.
-  - `@types/node` (dev): the CLI scripts need Node types. Today it is only present as a transitive dependency of webpack, which is fragile.
+- [x] **B1. Photo.** You supplied a WebP (1347×1679). It is kept byte-for-byte as `in/chilli-paneer.webp`, so it is never re-encoded. The sample CSV and the validation commands use `.webp` instead of `.jpg` (your choice). The photo has text printed on it already, so the overlays sit on top of that text.
+- [x] **B2. Music.** `assets/audio/bed.mp3` is an 8.0 s instrumental, generated with ElevenLabs Music v2.5 via Higgsfield at your request.
+- [x] **B3. Browser.** Option B, at your request: the render helper passes `browserExecutable` only when the `REMOTION_BROWSER_EXECUTABLE` env var is set. In this container it points at `/opt/pw-browsers/chromium_headless_shell`. On a normal machine, leave it unset and Remotion uses its own browser. `www.remotion.dev` was then allowed in a personal environment, and the dataset-render page has been read: bundle once, then `selectComposition` + `renderMedia` per entry, one render at a time.
+- [x] **B4. Packages.** You approved all three: `@remotion/media`, `@remotion/layout-utils` and `@types/node`.
 
 ## Decisions (and why)
 
@@ -24,7 +18,7 @@ Status: **waiting for approval.** Nothing is implemented yet.
   4. Deletes the staging dir and the bundle dir at the end.
 
   The originals are never modified. Batch mode stages every valid row before the single `bundle()` call.
-- **Studio.** Add `Config.setPublicDir("./in")` to `remotion.config.ts` (one added line, existing lines unchanged), so Studio and `npx remotion still` serve `in/`. The Teaser default props then use `photo: "chilli-paneer.jpg"`. The Node APIs ignore the config file and get `publicDir` explicitly.
+- **Studio.** Add `Config.setPublicDir("./in")` to `remotion.config.ts` (one added line, existing lines unchanged), so Studio and `npx remotion still` serve `in/`. The Teaser default props then use `photo: "chilli-paneer.webp"`. The Node APIs ignore the config file and get `publicDir` explicitly.
 - **"Never crop the dish" vs "scale to 1.12".** A contain-fit photo scaled 1.12× would overflow the frame. So the photo is contain-fit inside a centred box of `1080/1.12 × 1920/1.12` (≈ 964 × 1714). At peak scale it exactly reaches the frame edge, and nothing is ever cut off.
 - **Photo layer:** `<CanvasImage fit="contain">` with no filter, effect or colour change. Only `scale` is animated: `interpolate(frame,[0,209],[1,1.12],{easing: Easing.inOut(Easing.cubic), output:"perceptual-scale"})`, per the skill.
 - **Background layer:** the same image with `fit="cover"` and CSS `filter: blur(40px) brightness(0.5)`. This is allowed because it is the background, not the food layer. Plain CSS is used instead of `@remotion/effects` to avoid another package.
@@ -38,7 +32,7 @@ Status: **waiting for approval.** Nothing is implemented yet.
 
 ## Todo (one commit per item)
 
-- [ ] 1. `chore: add teaser deps and scripts`. Run `npx remotion add zod @remotion/google-fonts @remotion/bundler @remotion/renderer` (+ the B4 packages if approved), plus `npm i -D tsx`, `npm i csv-parse`. Check that every `@remotion/*` is at 4.0.545. Add the `teaser` and `batch` npm scripts. Add `in/` and `assets/audio/` to `.gitignore` (`out` is already there). Add the `setPublicDir` line. Create `tasks/lessons.md`.
+- [x] 1. `chore: add teaser deps and scripts`. Run `npx remotion add zod @remotion/google-fonts @remotion/bundler @remotion/renderer` + `@remotion/media @remotion/layout-utils`, plus `npm i -D tsx @types/node@22`, `npm i csv-parse`. Check that every `@remotion/*` is at 4.0.545. Add the `teaser` and `batch` npm scripts. Add `in/` and `assets/audio/` to `.gitignore` (`out` is already there). Add the `setPublicDir` line. Create `tasks/lessons.md`.
 - [ ] 2. `feat(teaser): props schema`. `src/schema.ts` holds the zod `TeaserProps` (`restaurant` 1-40, `dish` 1-60, `price` ≤ 12 optional, `photo`, `audio` nullable) and `CsvRow`.
 - [ ] 3. `feat(teaser): Teaser composition`. `src/Teaser.tsx` has the background, photo and text layers plus audio, exactly per the VIDEO SPEC, all driven by `useCurrentFrame()` + `interpolate`. Register it as `id="Teaser"` (1080×1920, 30fps, 210 frames) in `Root.tsx` with inline `defaultProps` and `schema`.
 - [ ] 4. `feat(teaser): CLI libs`. Four files in `scripts/lib/`:
@@ -51,7 +45,7 @@ Status: **waiting for approval.** Nothing is implemented yet.
   - With `--dry-run`, it prints one line per row (`row`, `output`, `ok` or the error) and touches nothing.
   - Without it, rows are processed one at a time. A row is skipped if its output exists (unless `--force`), and each row's failure is caught.
   - It writes `out/manifest.json` and exits with 1 if any row failed.
-- [ ] 7. `test: sample CSV fixture`. `tests/fixtures/leads.csv`, exactly as specified.
+- [ ] 7. `test: sample CSV fixture`. `tests/fixtures/leads.csv`, as specified but with `in/chilli-paneer.webp` (B1).
 - [ ] 8. Run VALIDATION 1–7 and paste the output.
 - [ ] 9. `docs: teaser maker usage`. Append a README section with both commands, the CSV columns, the error codes and the required note.
 
@@ -59,7 +53,7 @@ Status: **waiting for approval.** Nothing is implemented yet.
 
 1. `npx tsc --noEmit`
 2. `npm run batch -- --csv tests/fixtures/leads.csv --dry-run`, then `git status` / `ls out` to show nothing was written
-3. `npm run teaser -- --photo in/chilli-paneer.jpg --restaurant "Fatt Pundit" --dish "Crackling Spinach" --price "£9.50"`, then `ffprobe` the output
+3. `npm run teaser -- --photo in/chilli-paneer.webp --restaurant "Fatt Pundit" --dish "Crackling Spinach" --price "£9.50"`, then `ffprobe` the output
 4. `npm run batch -- --csv tests/fixtures/leads.csv; echo exit=$?`, then `cat out/manifest.json`
 5. Repeat step 4 and check for "skipped"
 6. `npx remotion render Teaser out/_check --frames=0,100,200 --image-format=png` (uses `in/` as the public dir)
