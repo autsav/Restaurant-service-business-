@@ -41,7 +41,7 @@ Status: **approved, in progress.**
   - `probe.ts`: image size.
   - `render.ts`: `validateInput()` (photo exists, extension, ≥ 720px, audio exists) and `renderTeasers(jobs)`, which stages files, bundles once, then runs `selectComposition` + `renderMedia` sequentially for each job.
 - [x] 5. `feat(teaser): single-render CLI`. `scripts/teaser.ts` parses arguments with `node:util` `parseArgs` (no extra dependency). It exits with 2 on `INVALID_ARGS`, 1 on any other failure and 0 on success, and prints one JSON line to stdout or stderr.
-- [ ] 6. `feat(batch): CSV batch CLI`. `scripts/batch.ts` uses `csv-parse/sync`:
+- [x] 6. `feat(batch): CSV batch CLI`. `scripts/batch.ts` uses `csv-parse/sync`:
   - With `--dry-run`, it prints one line per row (`row`, `output`, `ok` or the error) and touches nothing.
   - Without it, rows are processed one at a time. A row is skipped if its output exists (unless `--force`), and each row's failure is caught.
   - It writes `out/manifest.json` and exits with 1 if any row failed.

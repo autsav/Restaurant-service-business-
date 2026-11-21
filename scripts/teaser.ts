@@ -28,7 +28,11 @@ const main = async (): Promise<number> => {
       allowPositionals: false,
     }).values;
   } catch (err) {
-    printError("INVALID_ARGS", toTeaserError(err, "INVALID_ARGS").message, null);
+    printError(
+      "INVALID_ARGS",
+      toTeaserError(err, "INVALID_ARGS").message,
+      null,
+    );
     return 2;
   }
 
@@ -49,7 +53,11 @@ const main = async (): Promise<number> => {
       return 2;
     }
   } catch (err) {
-    printError("INVALID_ARGS", toTeaserError(err, "INVALID_ARGS").message, null);
+    printError(
+      "INVALID_ARGS",
+      toTeaserError(err, "INVALID_ARGS").message,
+      null,
+    );
     return 2;
   }
 
@@ -63,7 +71,7 @@ const main = async (): Promise<number> => {
 
   const output = flags.out ?? defaultOutput(lead);
   let ok = false;
-  await renderTeasers([{ lead, output }], (_job, result) => {
+  await renderTeasers([{ lead, output, row: null }], (_job, result) => {
     if (result.ok) {
       ok = true;
       printOk({ output: result.output, durationMs: Date.now() - started });
@@ -77,7 +85,11 @@ const main = async (): Promise<number> => {
 main().then(
   (code) => process.exit(code),
   (err) => {
-    printError("RENDER_FAILED", toTeaserError(err, "RENDER_FAILED").message, null);
+    printError(
+      "RENDER_FAILED",
+      toTeaserError(err, "RENDER_FAILED").message,
+      null,
+    );
     process.exit(1);
   },
 );

@@ -144,7 +144,9 @@ const RestaurantName: React.FC<{ text: string }> = ({ text }) => {
 // Measured once, after Inter has loaded.
 const useDishFontSize = (dish: string): number | null => {
   const { delayRender, continueRender, cancelRender } = useDelayRender();
-  const [handle] = useState(() => delayRender("Loading Inter to fit dish name"));
+  const [handle] = useState(() =>
+    delayRender("Loading Inter to fit dish name"),
+  );
   const [fontReady, setFontReady] = useState(false);
 
   useEffect(() => {

@@ -45,7 +45,10 @@ const probeJpeg = (buf: Buffer): ImageSize | null => {
       marker !== 0xc8 &&
       marker !== 0xcc;
     if (isStartOfFrame) {
-      return { height: buf.readUInt16BE(i + 5), width: buf.readUInt16BE(i + 7) };
+      return {
+        height: buf.readUInt16BE(i + 5),
+        width: buf.readUInt16BE(i + 7),
+      };
     }
     i += 2 + buf.readUInt16BE(i + 2);
   }

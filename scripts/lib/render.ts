@@ -74,7 +74,8 @@ export const checkLeadFiles = (lead: Lead): void => {
 export const defaultOutput = (lead: Lead): string =>
   path.posix.join("out", slugify(lead.restaurant), `${slugify(lead.dish)}.mp4`);
 
-export type RenderJob = { lead: Lead; output: string };
+// `row` is the CSV row number, or null for the single CLI.
+export type RenderJob = { lead: Lead; output: string; row: number | null };
 
 export type RenderResult =
   | { ok: true; output: string; durationMs: number }
