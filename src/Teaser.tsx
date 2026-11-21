@@ -37,7 +37,12 @@ const clamp = {
   extrapolateRight: "clamp",
 } as const;
 
+// Text blocks span the safe width; each one sets `top` or `bottom`.
+// (Plain divs: AbsoluteFill's 100% width/height would break the anchoring.)
 const textStyle: React.CSSProperties = {
+  position: "absolute",
+  left: SAFE_X,
+  right: SAFE_X,
   fontFamily,
   color: "white",
   textAlign: "center",
@@ -122,13 +127,10 @@ const Photo: React.FC<{ src: string }> = ({ src }) => {
 const RestaurantName: React.FC<{ text: string }> = ({ text }) => {
   const frame = useCurrentFrame();
   return (
-    <AbsoluteFill
+    <div
       style={{
-        top: SAFE_TOP,
-        left: SAFE_X,
-        right: SAFE_X,
-        bottom: "auto",
         ...textStyle,
+        top: SAFE_TOP,
         fontSize: 56,
         fontWeight: 600,
         lineHeight: 1.15,
@@ -136,7 +138,7 @@ const RestaurantName: React.FC<{ text: string }> = ({ text }) => {
       }}
     >
       {text}
-    </AbsoluteFill>
+    </div>
   );
 };
 
@@ -186,14 +188,13 @@ const DishAndPrice: React.FC<{ dish: string; price: string }> = ({
     return null;
   }
   return (
-    <AbsoluteFill
+    <div
       style={{
-        top: "auto",
-        bottom: SAFE_BOTTOM,
-        left: SAFE_X,
-        right: SAFE_X,
-        alignItems: "center",
         ...textStyle,
+        bottom: SAFE_BOTTOM,
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
       }}
     >
       <div
@@ -235,7 +236,7 @@ const DishAndPrice: React.FC<{ dish: string; price: string }> = ({
           {price}
         </div>
       ) : null}
-    </AbsoluteFill>
+    </div>
   );
 };
 
@@ -243,13 +244,10 @@ const DishAndPrice: React.FC<{ dish: string; price: string }> = ({
 const EndCard: React.FC<{ restaurant: string }> = ({ restaurant }) => {
   const frame = useCurrentFrame();
   return (
-    <AbsoluteFill
+    <div
       style={{
-        top: "auto",
-        bottom: SAFE_BOTTOM,
-        left: SAFE_X,
-        right: SAFE_X,
         ...textStyle,
+        bottom: SAFE_BOTTOM,
         fontSize: 40,
         fontWeight: 600,
         lineHeight: 1.25,
@@ -257,7 +255,7 @@ const EndCard: React.FC<{ restaurant: string }> = ({ restaurant }) => {
       }}
     >
       Made for {restaurant} by PYNK Studio
-    </AbsoluteFill>
+    </div>
   );
 };
 
