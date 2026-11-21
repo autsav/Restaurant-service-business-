@@ -5,6 +5,7 @@ export const ERROR_CODES = [
   "PHOTO_UNSUPPORTED",
   "PHOTO_TOO_SMALL",
   "AUDIO_NOT_FOUND",
+  "CLIP_NOT_FOUND",
   "RENDER_FAILED",
 ] as const;
 

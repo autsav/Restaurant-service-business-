@@ -1,11 +1,17 @@
 # PYNK Studio — teaser maker
 
-Turns **one real photo of a restaurant's own dish** into a 7-second vertical teaser
-(1080×1920, 30 fps, MP4) for private pitches: a slow camera push-in over the photo,
-the restaurant name, the dish name, an optional price, and a PYNK Studio end card.
+Turns **one real photo of a restaurant's own dish** (plus an optional moving clip of it)
+into an 8-second vertical teaser (1080×1920, 30 fps, MP4) for private pitches, cut in
+three scenes: a full-screen macro with a hook line, the moving clip with the dish name
+and price, then the whole plate with a PYNK Studio end card.
 
-Built with [Remotion](https://www.remotion.dev). The photo itself is never altered —
-only its scale and position change. No AI food generation, no filters, no retouching.
+Built with [Remotion](https://www.remotion.dev). This tool only scales, positions and
+crops the photo and clip; it applies no filters or retouching. The last scene always
+shows the whole plate uncropped.
+
+**If the clip is AI-generated** (e.g. Seedance image-to-video from the photo), compare it
+with the real photo before sending: the model redraws the food and can change portion
+size, piece count and sauce. Use `--stills` and reject anything the kitchen could not serve.
 
 ## Setup
 
@@ -24,6 +30,9 @@ npm run teaser -- \
   --restaurant "Fatt Pundit" \
   --dish "Crackling Spinach" \
   --price "£9.50" \
+  --hook "Still sizzling." \
+  --clip in/crackling-spinach.mp4 \
+  --focus-x 0.5 --focus-y 0.55 \
   --audio assets/audio/bed.mp3 \
   --stills
 ```
@@ -34,9 +43,12 @@ npm run teaser -- \
 | `--restaurant` | yes | 1–40 characters |
 | `--dish` | yes | 1–60 characters |
 | `--price` | no | up to 12 characters, e.g. `£9.50` |
-| `--audio` | no | silent when omitted |
+| `--hook` | no | big opening line, 2–4 words; defaults to "Hungry yet?" |
+| `--clip` | no | mp4/mov/webm of the same dish for the middle scene; without it the photo is used |
+| `--focus-x`, `--focus-y` | no | where the food sits in the photo, 0–1 from left / top; default 0.5 |
+| `--audio` | no | music bed; the clip's own sound plays quietly either way |
 | `--out` | no | defaults to `out/<restaurant-slug>/<dish-slug>.mp4` |
-| `--stills` | no | also writes frames 0, 100 and 200 as PNGs to `out/_check/` |
+| `--stills` | no | also writes six check frames as PNGs to `out/_check/` |
 
 On success it prints one JSON line: `{"ok":true,"output":"...","durationMs":1234}`.
 
@@ -48,7 +60,8 @@ npm run batch -- --csv leads.csv             # render
 npm run batch -- --csv leads.csv --force     # re-render rows whose output exists
 ```
 
-CSV columns (all five must be present; `price` and `audio` may be empty):
+CSV columns (these five must be present; `price` and `audio` may be empty). Optional
+extra columns: `hook`, `clip`, `focusX`, `focusY`.
 
 ```csv
 restaurant,dish,price,photo,audio
@@ -79,6 +92,7 @@ Every failure prints one JSON line on stderr:
 | `PHOTO_UNSUPPORTED` | not a jpg/jpeg/png/webp, or unreadable |
 | `PHOTO_TOO_SMALL` | shortest side under 720px |
 | `AUDIO_NOT_FOUND` | the audio path does not exist |
+| `CLIP_NOT_FOUND` | the clip path does not exist or is not mp4/mov/webm |
 | `RENDER_FAILED` | the render itself failed |
 
 Exit codes: `0` all good, `1` something failed, `2` bad arguments.

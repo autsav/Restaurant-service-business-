@@ -57,3 +57,15 @@ export const assertUsableAudio = (audioPath: string, row: number | null = null):
     throw new TeaserError("AUDIO_NOT_FOUND", `Audio not found: ${audioPath}`, row);
   }
 };
+
+const ALLOWED_CLIP_EXTENSIONS = [".mp4", ".mov", ".webm"];
+
+export const assertUsableClip = (clipPath: string, row: number | null = null): void => {
+  if (!fs.existsSync(clipPath) || !fs.statSync(clipPath).isFile()) {
+    throw new TeaserError("CLIP_NOT_FOUND", `Clip not found: ${clipPath}`, row);
+  }
+  const ext = path.extname(clipPath).toLowerCase();
+  if (!ALLOWED_CLIP_EXTENSIONS.includes(ext)) {
+    throw new TeaserError("CLIP_NOT_FOUND", `Clip must be one of ${ALLOWED_CLIP_EXTENSIONS.join(", ")}: ${clipPath}`, row);
+  }
+};

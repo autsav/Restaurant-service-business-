@@ -4,9 +4,9 @@ import path from "node:path";
 import { bundle } from "@remotion/bundler";
 import { renderMedia, renderStill, selectComposition } from "@remotion/renderer";
 import { TeaserError, toTeaserError } from "./errors";
-import { assertUsableAudio, assertUsablePhoto } from "./probe";
+import { assertUsableAudio, assertUsableClip, assertUsablePhoto } from "./probe";
 import { slug } from "./slug";
-import { jobInputSchema, type JobInput } from "../../src/schema";
+import { DEFAULT_HOOK, jobInputSchema, type JobInput } from "../../src/schema";
 
 export const PROJECT_ROOT = path.resolve(__dirname, "..", "..");
 export const ENTRY_POINT = path.join(PROJECT_ROOT, "src", "index.ts");
@@ -42,13 +42,17 @@ export type Job = {
   restaurant: string;
   dish: string;
   price: string | null;
+  hook: string;
   photoPath: string;
+  clipPath: string | null;
   audioPath: string | null;
+  focusX: number;
+  focusY: number;
   outputPath: string;
 };
 
 /** A job whose input files have been copied into public/_staged. */
-export type StagedJob = Job & { stagedPhoto: string; stagedAudio: string | null };
+export type StagedJob = Job & { stagedPhoto: string; stagedClip: string | null; stagedAudio: string | null };
 
 export const defaultOutputPath = (restaurant: string, dish: string): string =>
   path.join(PROJECT_ROOT, "out", slug(restaurant), `${slug(dish)}.mp4`);
@@ -71,12 +75,22 @@ export const buildJob = (input: unknown, row: number | null, explicitOut?: strin
     assertUsableAudio(audioPath, row);
   }
 
+  let clipPath: string | null = null;
+  if (value.clip && value.clip.length > 0) {
+    clipPath = path.resolve(PROJECT_ROOT, value.clip);
+    assertUsableClip(clipPath, row);
+  }
+
   return {
     restaurant: value.restaurant,
     dish: value.dish,
     price: value.price && value.price.length > 0 ? value.price : null,
+    hook: value.hook && value.hook.length > 0 ? value.hook : DEFAULT_HOOK,
     photoPath,
+    clipPath,
     audioPath,
+    focusX: value.focusX ?? 0.5,
+    focusY: value.focusY ?? 0.5,
     outputPath: explicitOut
       ? path.resolve(PROJECT_ROOT, explicitOut)
       : defaultOutputPath(value.restaurant, value.dish),
@@ -95,6 +109,7 @@ export const stageJobs = (jobs: Job[]): StagedJob[] =>
   jobs.map((job) => ({
     ...job,
     stagedPhoto: stageFile(job.photoPath),
+    stagedClip: job.clipPath ? stageFile(job.clipPath) : null,
     stagedAudio: job.audioPath ? stageFile(job.audioPath) : null,
   }));
 
@@ -128,8 +143,12 @@ export const renderJob = async ({ serveUrl, job, stills = false, row = null }: R
       restaurant: job.restaurant,
       dish: job.dish,
       price: job.price,
+      hook: job.hook,
       photo: job.stagedPhoto,
+      clip: job.stagedClip,
       audio: job.stagedAudio,
+      focusX: job.focusX,
+      focusY: job.focusY,
     };
 
     const composition = await selectComposition({ serveUrl, id: COMPOSITION_ID, inputProps, ...chrome });
@@ -151,7 +170,7 @@ export const renderJob = async ({ serveUrl, job, stills = false, row = null }: R
     if (stills) {
       const checkDir = path.join(PROJECT_ROOT, "out", "_check");
       fs.mkdirSync(checkDir, { recursive: true });
-      for (const frame of [0, 100, 200]) {
+      for (const frame of [20, 50, 90, 140, 200, 235]) {
         await renderStill({
           composition,
           serveUrl,
